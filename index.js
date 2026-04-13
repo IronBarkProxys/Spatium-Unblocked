@@ -1,4 +1,5 @@
-// Navigation
+// Satium - index.js (Updated with proper proxy handling)
+
 function handleNav(event, target) {
     document.querySelectorAll('#navbar li').forEach(li => li.classList.remove('active'));
     
@@ -9,7 +10,7 @@ function handleNav(event, target) {
         window.location.href = 'games.html';
     } 
     else if (target === 'youtube') {
-        if (typeof quickLink === 'function') quickLink('hvtrs8%2F-wuw%2Cymuvu%60e%2Ccmm-');
+        proxyGo('https://www.youtube.com');
         document.querySelector('li[data-target="home"]').classList.add('active');
     } 
     else if (target === 'tabconfig') {
@@ -22,7 +23,7 @@ function handleNav(event, target) {
     }
 }
 
-// Particles
+// Particle Background
 const pJS = (tag_id) => {
     const canvas_el = document.createElement('canvas');
     canvas_el.style.width = "100%";
@@ -51,7 +52,8 @@ const pJS = (tag_id) => {
     const draw = () => {
         ctx.clearRect(0, 0, w, h);
         particles.forEach(p => {
-            p.x += p.vx; p.y += p.vy;
+            p.x += p.vx; 
+            p.y += p.vy;
             if (p.x > w) p.x = 0;
             if (p.y > h) p.y = 0;
             ctx.fillStyle = p.color;
@@ -63,37 +65,47 @@ const pJS = (tag_id) => {
     };
 
     window.addEventListener('resize', init);
-    init(); draw();
+    init(); 
+    draw();
 };
 
-// Proxy Search
+// Ultraviolet Proxy Function (Fixed)
 function proxyGo(url) {
-    if (typeof __uv$config !== "undefined") {
-        const encoded = __uv$config.encodeUrl(url.startsWith('http') ? url : 'https://' + url);
+    if (typeof __uv$config !== "undefined" && __uv$config.prefix) {
+        const encoded = __uv$config.encodeUrl(url);
         location.href = __uv$config.prefix + encoded;
     } else {
-        window.open(url.startsWith('http') ? url : 'https://' + url, '_blank');
+        console.warn("Ultraviolet config not loaded - opening in new tab");
+        window.open(url, '_blank');
     }
 }
 
+function closeNotice() {
+    document.getElementById('noticeBox').classList.add('hidden');
+}
+
+// Initialize everything
 window.onload = () => {
     pJS('particles-js');
 
     const splashes = ["monochrome", "clean & fast", "satium", "encrypted", "minimal", "ultraviolet"];
     document.getElementById('splash').textContent = splashes[Math.floor(Math.random() * splashes.length)];
 
-    // Search
+    // Search bar
     document.getElementById("homesearch").addEventListener("keydown", e => {
         if (e.key === "Enter") {
             let q = e.target.value.trim();
             if (q) {
-                if (q.includes('.')) proxyGo(q);
-                else proxyGo(`https://www.google.com/search?q=${encodeURIComponent(q)}`);
+                if (q.includes('.')) {
+                    proxyGo(q);
+                } else {
+                    proxyGo(`https://www.google.com/search?q=${encodeURIComponent(q)}`);
+                }
             }
         }
     });
 
-    // Sidebar animation
+    // Sidebar slide-in animation
     ['section1nav', 'section2nav', 'section3nav'].forEach((id, i) => {
         setTimeout(() => {
             const el = document.getElementById(id);
@@ -101,13 +113,9 @@ window.onload = () => {
         }, 100 + (i * 100));
     });
 
-    // Notice
+    // Show welcome notice
     setTimeout(() => {
         const notice = document.getElementById('noticeBox');
         if (notice) notice.classList.remove('hidden');
     }, 900);
 };
-
-function closeNotice() {
-    document.getElementById('noticeBox').classList.add('hidden');
-}
